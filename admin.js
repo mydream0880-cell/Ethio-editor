@@ -54,12 +54,12 @@ async function loadLastDelivery() {
   }
 
   const job = snapshot.docs[0].data();
-  lastDelivery.innerHTML = `
-    <p><strong>Title:</strong> ${job.title}</p>
-    <p><strong>Deadline:</strong> ${job.deadline}</p>
-    <p><strong>Editor Telebirr:</strong> ${job.editorTelebirr}</p>
-    <p><strong>Delivery:</strong> <a href="${job.deliverLink}" target="_blank">View File</a></p>
-  `;
+lastDelivery.innerHTML = `
+  <p><strong>Title:</strong> ${job.title}</p>
+  <p><strong>Deadline:</strong> ${job.deadline}</p>
+  <p><strong>Editor Telebirr:</strong> ${job.editorTelebirr}</p>
+  <p><strong>Delivery:</strong> <a href="${job.deliverLink}" target="_blank">View File</a></p>
+`;
 }
 
 loadLastDelivery();
