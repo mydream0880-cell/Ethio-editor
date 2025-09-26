@@ -4,150 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Etio-Editor</title>
-  <style>
-    :root {
-      --blue: #00aaff;
-      --purple: #6a00ff;
-      --pink: #ff0077;
-      --gold: #ffcc00;
-      --silver: #f5f7fa;
-      --text: #222;
-      --radius: 12px;
-      --shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--silver);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    /* HEADER - Silver color */
-    header {
-      background: var(--silver);
-      color: var(--text);
-      padding: 1.2rem;
-      text-align: center;
-      box-shadow: var(--shadow);
-      border-bottom: 3px solid var(--pink);
-    }
-
-    .title {
-      font-size: 2rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
-    }
-
-    .tagline {
-      font-size: 1rem;
-      margin-top: 0.5rem;
-      color: #666;
-      font-style: italic;
-    }
-
-    /* MAIN - Centered content */
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 1rem;
-    }
-
-    .content-container {
-      text-align: center;
-      max-width: 500px;
-      width: 100%;
-    }
-
-    .empty-state {
-      color: #666;
-      font-size: 1.1rem;
-      margin-bottom: 2rem;
-    }
-
-    /* FOOTER NAV - Centered */
-    footer {
-      display: flex;
-      justify-content: center;
-      background: linear-gradient(to right, var(--purple), var(--blue));
-      padding: 1rem 0;
-      box-shadow: var(--shadow);
-      border-top: 3px solid var(--pink);
-    }
-
-    .nav-buttons {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* BUTTONS - Original style but centered */
-    .nav-btn {
-      background: var(--gold);
-      color: #222;
-      border: none;
-      padding: 0.8rem 1.4rem;
-      border-radius: var(--radius);
-      font-weight: bold;
-      font-size: 1rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      transition: all 0.2s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-    }
-
-    .nav-btn:hover {
-      background: #ffe066;
-      transform: translateY(-3px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
-    }
-
-    .nav-btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    }
-
-    .nav-btn.active {
-      background: #ffdd33;
-      box-shadow: 0 0 10px var(--gold);
-    }
-
-    /* HIDE SECTIONS */
-    .hidden {
-      display: none;
-    }
-
-    /* RESPONSIVE TWEAKS */
-    @media (max-width: 400px) {
-      .title {
-        font-size: 1.5rem;
-      }
-
-      .nav-buttons {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      
-      .nav-btn {
-        font-size: 0.9rem;
-        padding: 0.6rem 1rem;
-        width: 200px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
@@ -169,8 +26,8 @@
 
   <footer>
     <div class="nav-buttons">
-      <button id="btn-home" class="nav-btn active">Home</button>
-      <button id="btn-my" class="nav-btn">My Projects</button>
+      <button id="btn-home" class="nav-btn active">HOME</button>
+      <button id="btn-my" class="nav-btn">MY PROJECTS</button>
     </div>
   </footer>
 
