@@ -1,6 +1,12 @@
 import { db } from "./firebase.js";
 import {
-  collection, addDoc, query, where, getDocs, orderBy, limit
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit
 } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
 
 const titleInput = document.getElementById("job-title");
@@ -27,7 +33,7 @@ postBtn.addEventListener("click", async () => {
     deliverLink: ""
   });
 
-  alert("✅ Job posted with editor Telebirr");
+  alert("✅ Job posted");
   titleInput.value = "";
   deadlineInput.value = "";
   telebirrInput.value = "";
@@ -50,12 +56,13 @@ async function loadLastDelivery() {
   }
 
   const job = snapshot.docs[0].data();
-
   lastDelivery.innerHTML = `
     <p><strong>Title:</strong> ${job.title}</p>
     <p><strong>Deadline:</strong> ${job.deadline}</p>
     <p><strong>Editor Telebirr:</strong> ${job.editorTelebirr}</p>
-    <p><strong>Delivery:</strong> <a href="${job.deliverLink}" target="_blank">${job.deliverLink}</a></p>
+    <p><strong>Delivery:</strong>
+      <a href="${job.deliverLink}" target="_blank">${job.deliverLink}</a>
+    </p>
   `;
 }
 
