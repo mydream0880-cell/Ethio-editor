@@ -11,26 +11,18 @@
     <h1 class="title">Etio-Editor</h1>
     <p class="tagline">Connecting Clients & Editors in Real Time</p>
   </header>
-
   <main>
-    <div class="content-container">
-      <section id="job-list">
-        <p class="empty-state">No available projects. Admin will post jobs here.</p>
-      </section>
-
-      <section id="my-projects" class="hidden">
-        <p class="empty-state">No accepted projects yet.</p>
-      </section>
-    </div>
+    <section id="job-list">
+      <p class="empty-state">No available projects. Admin will post jobs here.</p>
+    </section>
+    <section id="my-projects" class="hidden">
+      <p class="empty-state">No accepted projects yet.</p>
+    </section>
   </main>
-
   <footer>
-    <div class="nav-buttons">
-      <button id="btn-home" class="nav-btn active">HOME</button>
-      <button id="btn-my" class="nav-btn">MY PROJECTS</button>
-    </div>
+    <button id="btn-home" class="nav-btn active">HOME</button>
+    <button id="btn-my"   class="nav-btn">MY PROJECTS</button>
   </footer>
-
   <script type="module" src="firebase.js"></script>
   <script type="module" src="script.js"></script>
 </body>
