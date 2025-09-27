@@ -3,8 +3,6 @@ import {
   collection, addDoc, query, where, getDocs, orderBy, limit
 } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
 
-console.log("✅ Admin panel script loaded");
-
 const titleInput = document.getElementById("job-title");
 const deadlineInput = document.getElementById("job-deadline");
 const telebirrInput = document.getElementById("editor-telebirr");
@@ -12,8 +10,6 @@ const postBtn = document.getElementById("post-job");
 const lastDelivery = document.getElementById("last-delivery");
 
 postBtn.addEventListener("click", async () => {
-  console.log("✅ Post button clicked");
-
   const title = titleInput.value.trim();
   const deadline = deadlineInput.value.trim();
   const telebirr = telebirrInput.value.trim();
@@ -54,12 +50,13 @@ async function loadLastDelivery() {
   }
 
   const job = snapshot.docs[0].data();
-lastDelivery.innerHTML = `
-  <p><strong>Title:</strong> ${job.title}</p>
-  <p><strong>Deadline:</strong> ${job.deadline}</p>
-  <p><strong>Editor Telebirr:</strong> ${job.editorTelebirr}</p>
-  <p><strong>Delivery:</strong> <a href="${job.deliverLink}" target="_blank">View File</a></p>
-`;
+
+  lastDelivery.innerHTML = `
+    <p><strong>Title:</strong> ${job.title}</p>
+    <p><strong>Deadline:</strong> ${job.deadline}</p>
+    <p><strong>Editor Telebirr:</strong> ${job.editorTelebirr}</p>
+    <p><strong>Delivery:</strong> <a href="${job.deliverLink}" target="_blank">${job.deliverLink}</a></p>
+  `;
 }
 
 loadLastDelivery();
