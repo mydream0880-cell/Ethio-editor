@@ -1,6 +1,11 @@
 import { db } from "./firebase.js";
 import {
-  collection, getDocs, query, where, updateDoc, doc
+  collection,
+  getDocs,
+  query,
+  where,
+  updateDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
 
 const jobList = document.getElementById("job-list");
@@ -48,7 +53,9 @@ async function loadJobs() {
         <button class="nav-btn">Accept</button>
       </div>
     `;
-    jobEl.querySelector("button").addEventListener("click", () => acceptJob(docSnap.id, jobEl));
+    jobEl.querySelector("button").addEventListener("click", () =>
+      acceptJob(docSnap.id, jobEl)
+    );
     jobList.appendChild(jobEl);
   });
 }
@@ -56,7 +63,9 @@ async function loadJobs() {
 async function acceptJob(jobId, jobEl) {
   await updateDoc(doc(db, "jobs", jobId), { status: "accepted" });
   jobEl.querySelector(".job-actions").innerHTML = `<button class="nav-btn">Deliver</button>`;
-  jobEl.querySelector("button").addEventListener("click", () => deliverJob(jobId, jobEl));
+  jobEl.querySelector("button").addEventListener("click", () =>
+    deliverJob(jobId, jobEl)
+  );
   myProjects.appendChild(jobEl);
   btnMy.click();
 }
@@ -71,6 +80,10 @@ async function deliverJob(jobId, jobEl) {
     editorTelebirr: telebirr
   });
   jobEl.querySelector(".job-actions").remove();
-  jobEl.innerHTML += `<p><strong>Delivered:</strong> <a href="${link}" target="_blank">View File</a></p>`;
+  jobEl.innerHTML += `
+    <p><strong>Delivered:</strong>
+      <a href="${link}" target="_blank">View File</a>
+    </p>
+  `;
   alert("✅ Delivery submitted!");
-}
+                          }
