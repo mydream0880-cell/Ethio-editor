@@ -4,10 +4,10 @@ import {
   updateDoc, doc
 } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
 
-const jobList   = document.getElementById("job-list");
-const myProjects= document.getElementById("my-projects");
-const btnHome   = document.getElementById("btn-home");
-const btnMy     = document.getElementById("btn-my");
+const jobList     = document.getElementById("job-list");
+const myProjects  = document.getElementById("my-projects");
+const btnHome     = document.getElementById("btn-home");
+const btnMy       = document.getElementById("btn-my");
 
 btnHome.addEventListener("click", () => {
   jobList.classList.remove("hidden");
@@ -28,7 +28,7 @@ btnHome.click();
 
 async function loadJobs() {
   jobList.innerHTML = "";
-  const q        = query(collection(db, "jobs"), where("status","==","posted"));
+  const q = query(collection(db, "jobs"), where("status", "==", "posted"));
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
@@ -38,33 +38,65 @@ async function loadJobs() {
 
   snapshot.forEach(docSnap => {
     const job = docSnap.data();
-    const el  = document.createElement("div");
+    const el = document.createElement("div");
+    el.className = "job-card";
     el.innerHTML = `
-      <p><strong>${job.title}</strong> (Deadline: ${job.deadline})</p>
-      <button class="nav-btn">Accept</button>
+      <h3>${job.title}</h3>
+      <p>${job.description}</p>
+      <p><strong>Expiry:</strong> ${job.expiry}</p>
+      <p><strong>Salary:</strong> ${job.salary}</p>
+      <button class="nav-btn">✅ Accept</button>
     `;
-    el.querySelector("button").addEventListener("click", () => acceptJob(docSnap.id, el));
+    el.querySelector("button").addEventListener("click", () =>
+      acceptJob(docSnap.id, job, el)
+    );
     jobList.appendChild(el);
   });
 }
 
-async function acceptJob(id, el) {
-  await updateDoc(doc(db,"jobs",id),{status:"accepted"});
-  el.querySelector("button").innerText = "Deliver";
-  el.querySelector("button").onclick = () => deliverJob(id, el);
+async function acceptJob(jobId, job, el) {
+  await updateDoc(doc(db, "jobs", jobId), { status: "accepted" });
+  el.querySelector("button").remove();
+  const deliverBtn = document.createElement("button");
+  deliverBtn.className = "nav-btn";
+  deliverBtn.innerText = "📤 Submit";
+  deliverBtn.addEventListener("click", () => deliverJob(jobId));
+  el.appendChild(deliverBtn);
   myProjects.appendChild(el);
   btnMy.click();
 }
 
-async function deliverJob(id, el) {
-  const link    = prompt("Paste your delivery link:");
-  const telebirr= prompt("Enter your Telebirr number:");
-  if (!link||!telebirr) return;
-  await updateDoc(doc(db,"jobs",id), {
-    status:"delivered",
-    deliverLink:link,
-    editorTelebirr:telebirr
-  });
-  el.remove();
-  alert("✅ Delivery submitted!");
-}
+async function deliverJob(jobId) {
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "video/*";
+  fileInput.click();
+
+  fileInput.onchange = async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const telebirr = prompt("📱 Enter your Telebirr number:");
+    if (!telebirr) return;
+
+    const storageRef = `deliveries/${jobId}/${file.name}`;
+    const res = await fetch("https://firebasestorage.googleapis.com/v0/b/ethio-editor.appspot.com/o/" + encodeURIComponent(storageRef) + "?uploadType=media", {
+      method: "POST",
+      headers: {
+        "Content-Type": file.type
+      },
+      body: file
+    });
+
+    const json = await res.json();
+    const downloadURL = `https://firebasestorage.googleapis.com/v0/b/ethio-editor.appspot.com/o/${encodeURIComponent(storageRef)}?alt=media`;
+
+    await updateDoc(doc(db, "jobs", jobId), {
+      status: "delivered",
+      deliverLink: downloadURL,
+      editorTelebirr: telebirr
+    });
+
+    alert("✅ Delivery submitted!");
+  };
+                                                }
