@@ -8,21 +8,27 @@
 </head>
 <body>
   <header>
-    <h1 class="title">Etio-Editor</h1>
-    <p class="tagline">Connecting Clients & Editors in Real Time</p>
+    <h1 class="title">Etio-Editor 🎬</h1>
+    <p class="tagline">Your editing hustle starts here</p>
   </header>
+
   <main>
-    <section id="job-list">
+    <section id="job-list" class="page-section">
       <p class="empty-state">No available projects. Admin will post jobs here.</p>
     </section>
-    <section id="my-projects" class="hidden">
+
+    <section id="my-projects" class="page-section hidden">
       <p class="empty-state">No accepted projects yet.</p>
     </section>
   </main>
+
   <footer>
-    <button id="btn-home" class="nav-btn active">HOME</button>
-    <button id="btn-my"   class="nav-btn">MY PROJECTS</button>
+    <div class="bottom-nav">
+      <button id="btn-home" class="nav-btn active">🏠 Home</button>
+      <button id="btn-my" class="nav-btn">📁 My Projects</button>
+    </div>
   </footer>
+
   <script type="module" src="firebase.js"></script>
   <script type="module" src="script.js"></script>
 </body>
