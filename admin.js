@@ -6,43 +6,62 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
 
 const titleInput    = document.getElementById("job-title");
-const deadlineInput = document.getElementById("job-deadline");
-const telebirrInput = document.getElementById("editor-telebirr");
+const descInput     = document.getElementById("job-description");
+const expiryInput   = document.getElementById("job-expiry");
+const salaryInput   = document.getElementById("job-salary");
 const postBtn       = document.getElementById("post-job");
 const lastDiv       = document.getElementById("last-delivery");
 
 postBtn.addEventListener("click", async () => {
-  const title = titleInput.value.trim();
-  const dl    = deadlineInput.value.trim();
-  const tb    = telebirrInput.value.trim();
-  if (!title||!dl||!tb) return alert("Fill all fields");
+  const title  = titleInput.value.trim();
+  const desc   = descInput.value.trim();
+  const expiry = expiryInput.value.trim();
+  const salary = salaryInput.value.trim();
 
-  await addDoc(collection(db,"jobs"), {
-    title, deadline:dl, editorTelebirr:tb,
-    status:"posted", deliverLink:""
+  if (!title || !desc || !expiry || !salary) {
+    alert("❌ Fill all fields");
+    return;
+  }
+
+  await addDoc(collection(db, "jobs"), {
+    title,
+    description: desc,
+    expiry,
+    salary,
+    status: "posted",
+    deliverLink: "",
+    editorTelebirr: ""
   });
 
-  titleInput.value = deadlineInput.value = telebirrInput.value = "";
+  alert("✅ Job posted successfully!");
+  titleInput.value = descInput.value = expiryInput.value = salaryInput.value = "";
   loadLast();
 });
 
 async function loadLast() {
-  const q        = query(
-    collection(db,"jobs"),
-    where("status","==","delivered"),
-    orderBy("deadline","desc"),
+  const q = query(
+    collection(db, "jobs"),
+    where("status", "==", "delivered"),
+    orderBy("expiry", "desc"),
     limit(1)
   );
-  const snap     = await getDocs(q);
+
+  const snap = await getDocs(q);
   if (snap.empty) {
     lastDiv.innerText = "No deliveries yet.";
     return;
   }
+
   const job = snap.docs[0].data();
   lastDiv.innerHTML = `
-    <p>${job.title} (Deadline: ${job.deadline})</p>
-    <p>Telebirr: ${job.editorTelebirr}</p>
-    <p><a href="${job.deliverLink}" target="_blank">View File</a></p>
+    <p><strong>Title:</strong> ${job.title}</p>
+    <p><strong>Description:</strong> ${job.description}</p>
+    <p><strong>Expiry:</strong> ${job.expiry}</p>
+    <p><strong>Salary:</strong> ${job.salary}</p>
+    <p><strong>Telebirr:</strong> ${job.editorTelebirr}</p>
+    <p><strong>Delivery:</strong>
+      <a href="${job.deliverLink}" target="_blank">📁 View File</a>
+    </p>
   `;
 }
 
