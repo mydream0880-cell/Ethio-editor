@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,28 +7,15 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <h1 class="title">Etio-Editor 🎬</h1>
-    <p class="tagline">Your editing hustle starts here</p>
-  </header>
-
-  <main>
-    <section id="job-list" class="page-section">
-      <p class="empty-state">No available projects. Admin will post jobs here.</p>
-    </section>
-
-    <section id="my-projects" class="page-section hidden">
-      <p class="empty-state">No accepted projects yet.</p>
-    </section>
-  </main>
-
+  <h1 class="title">Etio-Editor 🎬</h1>
+  <section id="job-list"></section>
+  <section id="my-projects" class="hidden"></section>
   <footer>
     <div class="bottom-nav">
       <button id="btn-home" class="nav-btn active">🏠 Home</button>
       <button id="btn-my" class="nav-btn">📁 My Projects</button>
     </div>
   </footer>
-
   <script type="module" src="firebase.js"></script>
   <script type="module" src="script.js"></script>
 </body>
