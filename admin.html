@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,31 +7,15 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <h1 class="title">Admin Panel 🧑‍💼</h1>
-    <p class="tagline">Post jobs & track editor deliveries</p>
-  </header>
+  <h1 class="title">Admin Panel 🧑‍💼</h1>
+  <input id="job-title" placeholder="📌 Title" />
+  <textarea id="job-description" rows="4" placeholder="📝 Description"></textarea>
+  <input id="job-expiry" placeholder="📅 Expiry Date" />
+  <input id="job-salary" placeholder="💰 Salary" />
+  <button id="post-job" class="nav-btn">✅ Post Job</button>
 
-  <main>
-    <div class="content-container">
-      <input type="text" id="job-title" placeholder="📌 Project Title" />
-      <textarea id="job-description" rows="4" placeholder="📝 Description (4 lines)"></textarea>
-      <input type="text" id="job-expiry" placeholder="📅 Expiry Date (e.g. 2025-10-01)" />
-      <input type="text" id="job-salary" placeholder="💰 Salary (e.g. 500 ETB)" />
-      <button id="post-job" class="nav-btn">✅ Post Job</button>
-
-      <hr style="margin:2rem 0;" />
-
-      <h3>Last Delivered Project 📦</h3>
-      <div id="last-delivery" class="empty-state">Loading...</div>
-    </div>
-  </main>
-
-  <footer>
-    <p style="text-align:center; font-size:0.9rem; color:#666;">
-      Private admin access only
-    </p>
-  </footer>
+  <h3>Last Delivery 📦</h3>
+  <div id="last-delivery" class="empty-state">Loading...</div>
 
   <script type="module" src="firebase.js"></script>
   <script type="module" src="admin.js"></script>
