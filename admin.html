@@ -7,13 +7,19 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="bar">
-    <h1>Etio-Editor — Admin Panel</h1>
+  <header class="navbar">
+    <div class="nav-left">
+      <h1>Etio-Editor Admin</h1>
+    </div>
+    <nav class="nav-right">
+      <a href="/index.html">🏠 Home</a>
+      <a href="/admin.html">📂 My Projects</a>
+    </nav>
   </header>
 
   <main class="container">
     <section class="card">
-      <h2>Post a new job</h2>
+      <h2>📢 Post a New Job</h2>
       <form id="jobForm">
         <label>Title
           <input id="title" type="text" placeholder="e.g., Short-form video edit" required />
@@ -24,29 +30,38 @@
         <label>Salary (ETB)
           <input id="salary" type="number" min="0" placeholder="e.g., 1500" required />
         </label>
-        <button id="postBtn" type="submit">Post job</button>
+        <button id="postBtn" type="submit">Post Job</button>
       </form>
       <p id="formMsg" class="msg"></p>
     </section>
 
     <section class="card">
-      <h2>Live jobs</h2>
+      <h2>📋 Live Jobs</h2>
       <div id="adminJobs"></div>
     </section>
 
     <section class="card">
-      <h2>Deliveries</h2>
+      <h2>📦 Deliveries</h2>
       <div id="deliveries"></div>
     </section>
   </main>
 
-  <script type="module" src="firebase.js"></script>
   <script type="module">
-    import {
-      ref, push, set, onValue, update
-    } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
-    const db = window.__db;
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDgQT6W2OULkePu9KMlfc04u8v2We40OI",
+      authDomain: "ethio-editor.firebaseapp.com",
+      databaseURL: "https://ethio-editor-default-rtdb.firebaseio.com",
+      projectId: "ethio-editor",
+      storageBucket: "ethio-editor.appspot.com",
+      messagingSenderId: "480278426413",
+      appId: "1:480278426413:web:e7daa9e7ec76db50f819a4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
     const jobForm = document.getElementById("jobForm");
     const formMsg = document.getElementById("formMsg");
@@ -78,7 +93,7 @@
           createdAt: Date.now()
         });
         jobForm.reset();
-        formMsg.textContent = "Job posted.";
+        formMsg.textContent = "✅ Job posted!";
         formMsg.className = "msg ok";
       } catch (err) {
         formMsg.textContent = "Failed to post: " + err.message;
@@ -86,15 +101,16 @@
       }
     });
 
-    // Live jobs list with status control
     const jobsRef = ref(db, "jobs");
     onValue(jobsRef, (snap) => {
       const data = snap.val() || {};
       adminJobs.innerHTML = "";
+      deliveries.innerHTML = "";
+
       Object.entries(data).forEach(([id, job]) => {
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `
+        const jobDiv = document.createElement("div");
+        jobDiv.className = "item";
+        jobDiv.innerHTML = `
           <div>
             <strong>${job.title}</strong> — ${job.salary} ETB
             <div class="sub">${job.description || ""}</div>
@@ -105,34 +121,12 @@
             ${job.status !== "archived" ? `<button data-id="${id}" data-action="archive">Archive</button>` : ""}
           </div>
         `;
-        adminJobs.appendChild(div);
-      });
-    });
+        adminJobs.appendChild(jobDiv);
 
-    adminJobs.addEventListener("click", async (e) => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      const id = btn.dataset.id;
-      const action = btn.dataset.action;
-      if (!id || !action) return;
-
-      const jobRef = ref(db, "jobs/" + id);
-      if (action === "repost") {
-        await update(jobRef, { status: "posted" });
-      } else if (action === "archive") {
-        await update(jobRef, { status: "archived" });
-      }
-    });
-
-    // Deliveries stream (status=delivered)
-    onValue(jobsRef, (snap) => {
-      const data = snap.val() || {};
-      deliveries.innerHTML = "";
-      Object.entries(data).forEach(([id, job]) => {
         if (job.status === "delivered") {
-          const d = document.createElement("div");
-          d.className = "item delivered";
-          d.innerHTML = `
+          const deliveryDiv = document.createElement("div");
+          deliveryDiv.className = "item delivered";
+          deliveryDiv.innerHTML = `
             <div>
               <strong>${job.title}</strong> — ${job.salary} ETB
               <div class="sub">Editor: ${job.editorName || "—"}</div>
@@ -144,18 +138,24 @@
               <button data-id="${id}" data-action="mark-paid">Mark paid</button>
             </div>
           `;
-          deliveries.appendChild(d);
+          deliveries.appendChild(deliveryDiv);
         }
       });
     });
 
-    deliveries.addEventListener("click", async (e) => {
+    document.body.addEventListener("click", async (e) => {
       const btn = e.target.closest("button");
       if (!btn) return;
       const id = btn.dataset.id;
       const action = btn.dataset.action;
-      if (action === "mark-paid") {
-        const jobRef = ref(db, "jobs/" + id);
+      if (!id || !action) return;
+
+      const jobRef = ref(db, "jobs/" + id);
+      if (action === "repost") {
+        await update(jobRef, { status: "posted" });
+      } else if (action === "archive") {
+        await update(jobRef, { status: "archived" });
+      } else if (action === "mark-paid") {
         await update(jobRef, { status: "paid" });
       }
     });
