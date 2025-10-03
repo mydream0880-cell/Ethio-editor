@@ -1,163 +1,93 @@
-/* === Base Reset === */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to bottom right, #f0f2f5, #e6ecf0);
-  color: #222;
-  padding-bottom: 80px;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans", Arial, sans-serif;
+  margin: 0;
+  background: #0f1218;
+  color: #e9edf3;
 }
 
-/* === Header === */
-header {
-  background: #ffffff;
-  padding: 1rem;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  border-bottom: 2px solid #3399ff;
+.bar {
+  background: #151a22;
+  border-bottom: 1px solid #222a36;
+  padding: 14px 16px;
 }
 
-.title {
-  font-size: 2.2rem;
-  font-weight: bold;
-  color: #000;
-  margin-bottom: 0.3rem;
+.container {
+  max-width: 780px;
+  margin: 24px auto;
+  padding: 0 12px;
 }
 
-.tagline {
-  font-size: 1rem;
-  color: #666;
-}
-
-/* === Content Container === */
-.content-container {
-  padding: 1.5rem;
-  max-width: 600px;
-  margin: auto;
-}
-
-/* === Inputs === */
-input, textarea {
-  width: 100%;
-  padding: 0.9rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
+.card {
+  background: #131823;
+  border: 1px solid #1f2633;
   border-radius: 10px;
-  font-size: 1rem;
-  background: #fff;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-  transition: border 0.3s ease;
+  padding: 16px;
+  margin-bottom: 18px;
 }
 
-input:focus, textarea:focus {
-  border-color: #3399ff;
-  outline: none;
+label {
+  display: block;
+  margin: 10px 0;
 }
 
-/* === Buttons === */
-.nav-btn {
-  background: linear-gradient(to right, #cce6ff, #99ccff);
+input, textarea, button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #2a3446;
+  background: #0e1320;
+  color: #e9edf3;
+}
+
+button {
+  background: #3b82f6;
   border: none;
-  padding: 0.9rem 1.4rem;
-  border-radius: 14px;
-  font-weight: bold;
   cursor: pointer;
-  margin: 0.5rem;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  font-size: 1rem;
+  margin-top: 8px;
 }
 
-.nav-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+button:hover {
+  background: #2563eb;
 }
 
-.nav-btn.active {
-  background: linear-gradient(to right, #66b3ff, #3399ff);
-  color: #fff;
-}
-
-/* === Bottom Navigation === */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #ffffff;
+.item {
   display: flex;
-  justify-content: center;
-  padding: 0.7rem;
-  box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
-  z-index: 100;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #1f2633;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: #0f1422;
 }
 
-/* === Job Cards === */
-.job-card {
-  background: #d9d9d9;
-  border: 2px solid #3399ff;
-  border-radius: 16px;
-  padding: 1rem;
-  margin: 1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease;
+.sub {
+  color: #a8b1c5;
+  margin-top: 6px;
+  font-size: 0.95em;
 }
 
-.job-card:hover {
-  transform: translateY(-2px);
+.actions {
+  display: flex;
+  gap: 8px;
 }
 
-#my-projects .job-card {
-  background: #fefefe;
-  border-color: #66ccff;
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.85em;
+  margin-top: 8px;
+  background: #223048;
+  color: #cfe1ff;
 }
 
-/* === Sections === */
-.page-section {
-  padding: 1rem;
-}
+.badge.posted { background: #1d3a26; color: #c7f7d1; }
+.badge.accepted { background: #463612; color: #ffe8b3; }
+.badge.delivered { background: #11334b; color: #cbe7ff; }
+.badge.paid { background: #1f2b14; color: #d9f7c4; }
 
-.empty-state {
-  color: #888;
-  font-size: 1rem;
-  text-align: center;
-  margin-top: 1rem;
-}
-
-.hidden {
-  display: none;
-}
-
-/* === Footer === */
-footer {
-  height: 60px;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #666;
-  padding: 1rem;
-}
-
-/* === Responsive === */
-@media screen and (max-width: 480px) {
-  .title {
-    font-size: 1.8rem;
-  }
-
-  .nav-btn {
-    font-size: 0.95rem;
-    padding: 0.7rem 1rem;
-  }
-
-  .job-card {
-    margin: 0.8rem;
-    padding: 0.8rem;
-  }
-
-  input, textarea {
-    font-size: 0.95rem;
-  }
-  }
+.msg { margin-top: 8px; }
+.msg.ok { color: #9ef0a0; }
+.msg.error { color: #ff8c8c; }
