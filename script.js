@@ -1,147 +1,97 @@
-// script.js
-import { db } from "./firebase.js";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  updateDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+// script.js - SUPABASE VERSION
+import { supabase } from './supabase.js'
 
-// Element refs
-const jobsContainer = document.getElementById("jobs-container");
-const projectsContainer = document.getElementById("projects-container");
-const btnHome = document.getElementById("btn-home");
-const btnMy = document.getElementById("btn-my");
-const deliveryModal = document.getElementById("delivery-modal");
-const driveLinkInput = document.getElementById("drive-link");
-const telebirrInput = document.getElementById("telebirr-number");
-const submitDelivery = document.getElementById("submit-delivery");
-const cancelDelivery = document.getElementById("cancel-delivery");
-const closeModal = document.querySelector(".close-modal");
+let currentJobId = null
 
-let currentJobId = null;
-let currentCard = null;
+document.addEventListener('DOMContentLoaded', function() {
+  setupEventListeners()
+  loadHomePage()
+})
 
-// Navigation system
-btnHome.addEventListener("click", () => {
-  document.getElementById("job-list").classList.add("section-active");
-  document.getElementById("job-list").classList.remove("section-hidden");
-  document.getElementById("my-projects").classList.add("section-hidden");
-  document.getElementById("my-projects").classList.remove("section-active");
+function setupEventListeners() {
+  document.getElementById('btn-home').addEventListener('click', loadHomePage)
+  document.getElementById('btn-my').addEventListener('click', loadMyProjects)
+  document.getElementById('submit-delivery').addEventListener('click', submitDelivery)
+  document.getElementById('cancel-delivery').addEventListener('click', closeModal)
+  document.querySelector('.close-modal').addEventListener('click', closeModal)
   
-  btnHome.classList.add("active");
-  btnMy.classList.remove("active");
-  loadJobs();
-});
+  document.getElementById('delivery-modal').addEventListener('click', function(e) {
+    if (e.target.id === 'delivery-modal') closeModal()
+  })
+}
 
-btnMy.addEventListener("click", () => {
-  document.getElementById("my-projects").classList.add("section-active");
-  document.getElementById("my-projects").classList.remove("section-hidden");
-  document.getElementById("job-list").classList.add("section-hidden");
-  document.getElementById("job-list").classList.remove("section-active");
-  
-  btnMy.classList.add("active");
-  btnHome.classList.remove("active");
-  loadMyProjects();
-});
+async function loadHomePage() {
+  updateNavigation('home')
+  const container = document.getElementById('jobs-container')
+  container.innerHTML = '<div class="loading-state">Loading jobs...</div>'
 
-// Auto-load on start
-window.addEventListener("DOMContentLoaded", () => {
-  btnHome.click();
-});
-
-// Fetch and display available jobs
-async function loadJobs() {
-  jobsContainer.innerHTML = "";
   try {
-    const q = query(
-      collection(db, "jobs"),
-      where("status", "==", "posted"),
-      orderBy("expiry", "asc")
-    );
-    const snap = await getDocs(q);
+    const { data: jobs, error } = await supabase
+      .from('Jobs')
+      .select('*')
+      .eq('status', 'posted')
+      .order('expiry', { ascending: true })
+
+    if (error) throw error
     
-    if (snap.empty) {
-      jobsContainer.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">📭</div>
-          <h3>No available jobs</h3>
-          <p>Check back later for new projects</p>
-        </div>
-      `;
-      return;
+    container.innerHTML = ''
+    
+    if (!jobs || jobs.length === 0) {
+      container.innerHTML = '<div class="empty-state">📭 No jobs available</div>'
+      return
     }
     
-    snap.forEach(docSnap => {
-      const job = docSnap.data();
-      const id = docSnap.id;
-      jobsContainer.appendChild(createJobCard(id, job, "available"));
-    });
-  } catch (err) {
-    console.error("Error loading jobs:", err);
-    jobsContainer.innerHTML = `
-      <div class="empty-state error">
-        <div class="empty-icon">❌</div>
-        <h3>Failed to load jobs</h3>
-        <p>Please check your connection</p>
-      </div>
-    `;
+    jobs.forEach(job => {
+      container.appendChild(createJobCard(job, 'available'))
+    })
+    
+  } catch (error) {
+    console.error('Error loading jobs:', error)
+    container.innerHTML = '<div class="empty-state error">❌ Failed to load jobs</div>'
   }
 }
 
-// Load my accepted projects
 async function loadMyProjects() {
-  projectsContainer.innerHTML = "";
+  updateNavigation('my-projects')
+  const container = document.getElementById('projects-container')
+  container.innerHTML = '<div class="loading-state">Loading projects...</div>'
+
   try {
-    const q = query(
-      collection(db, "jobs"),
-      where("status", "==", "accepted"),
-      orderBy("expiry", "asc")
-    );
-    const snap = await getDocs(q);
+    const { data: jobs, error } = await supabase
+      .from('Jobs')
+      .select('*')
+      .eq('status', 'accepted')
+      .order('expiry', { ascending: true })
+
+    if (error) throw error
     
-    if (snap.empty) {
-      projectsContainer.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">📁</div>
-          <h3>No accepted projects</h3>
-          <p>Accept jobs from the Home tab</p>
-        </div>
-      `;
-      return;
+    container.innerHTML = ''
+    
+    if (!jobs || jobs.length === 0) {
+      container.innerHTML = '<div class="empty-state">📁 No projects yet</div>'
+      return
     }
     
-    snap.forEach(docSnap => {
-      const job = docSnap.data();
-      const id = docSnap.id;
-      projectsContainer.appendChild(createJobCard(id, job, "accepted"));
-    });
-  } catch (err) {
-    console.error("Error loading my projects:", err);
-    projectsContainer.innerHTML = `
-      <div class="empty-state error">
-        <div class="empty-icon">❌</div>
-        <h3>Failed to load projects</h3>
-        <p>Please check your connection</p>
-      </div>
-    `;
+    jobs.forEach(job => {
+      container.appendChild(createJobCard(job, 'accepted'))
+    })
+    
+  } catch (error) {
+    console.error('Error loading projects:', error)
+    container.innerHTML = '<div class="empty-state error">❌ Failed to load projects</div>'
   }
 }
 
-// Create job card
-function createJobCard(id, job, type) {
-  const card = document.createElement("div");
-  card.className = `job-card ${type}-card`;
+function createJobCard(job, type) {
+  const card = document.createElement('div')
+  card.className = `job-card ${type}-card`
   card.innerHTML = `
     <div class="card-header">
-      <h3>${job.title}</h3>
+      <h3>${escapeHtml(job.title)}</h3>
       <div class="card-badge ${type}">${type === 'available' ? '📋 Available' : '✅ Accepted'}</div>
     </div>
     <div class="card-body">
-      <p class="card-description">${job.description}</p>
+      <p class="card-description">${escapeHtml(job.description)}</p>
       <div class="card-details">
         <div class="detail-item">
           <span class="detail-icon">📅</span>
@@ -149,7 +99,7 @@ function createJobCard(id, job, type) {
         </div>
         <div class="detail-item">
           <span class="detail-icon">💰</span>
-          <span class="detail-text">${job.salary}</span>
+          <span class="detail-text">${escapeHtml(job.salary)}</span>
         </div>
       </div>
     </div>
@@ -159,132 +109,136 @@ function createJobCard(id, job, type) {
         '<button class="btn-submit">🚀 Submit Project</button>'
       }
     </div>
-    <div class="card-glow"></div>
-  `;
+  `
 
-  if (type === 'available') {
-    card.querySelector('.btn-accept').addEventListener('click', () => acceptJob(id, card));
-  } else {
-    card.querySelector('.btn-submit').addEventListener('click', () => openDeliveryModal(id, card));
-  }
+  const button = card.querySelector(type === 'available' ? '.btn-accept' : '.btn-submit')
+  button.addEventListener('click', () => {
+    if (type === 'available') {
+      acceptJob(job.id, card)
+    } else {
+      openDeliveryModal(job.id, card)
+    }
+  })
 
-  return card;
+  return card
 }
 
-// Accept a job
-async function acceptJob(id, card) {
-  const btn = card.querySelector('.btn-accept');
-  btn.innerHTML = '<div class="btn-spinner"></div> Accepting...';
-  btn.disabled = true;
+async function acceptJob(jobId, card) {
+  const button = card.querySelector('.btn-accept')
+  const originalText = button.innerHTML
+  
+  button.innerHTML = 'Accepting...'
+  button.disabled = true
   
   try {
-    await updateDoc(doc(db, "jobs", id), { 
-      status: "accepted",
-      acceptedAt: new Date().toISOString()
-    });
+    const { error } = await supabase
+      .from('Jobs')
+      .update({ status: 'accepted' })
+      .eq('id', jobId)
+
+    if (error) throw error
     
-    card.style.animation = 'cardSlideOut 0.5s forwards';
-    setTimeout(() => {
-      card.remove();
-      loadMyProjects();
-      btnMy.click();
-    }, 500);
+    showNotification('✅ Job accepted!', 'success')
+    card.remove()
+    loadHomePage()
     
-  } catch (err) {
-    console.error("Error accepting job:", err);
-    btn.innerHTML = '✅ Accept Job';
-    btn.disabled = false;
-    showNotification('❌ Failed to accept job. Try again.', 'error');
+  } catch (error) {
+    console.error('Error accepting job:', error)
+    button.innerHTML = originalText
+    button.disabled = false
+    showNotification('❌ Failed to accept job', 'error')
   }
 }
 
-// Modal functions
-function openDeliveryModal(id, card) {
-  currentJobId = id;
-  currentCard = card;
-  deliveryModal.classList.remove('hidden');
-  driveLinkInput.value = '';
-  telebirrInput.value = '';
+function openDeliveryModal(jobId, card) {
+  currentJobId = jobId
+  document.getElementById('delivery-modal').classList.remove('hidden')
+  document.getElementById('drive-link').value = ''
+  document.getElementById('telebirr-number').value = ''
 }
 
-function closeDeliveryModal() {
-  deliveryModal.classList.add('hidden');
-  currentJobId = null;
-  currentCard = null;
+function closeModal() {
+  document.getElementById('delivery-modal').classList.add('hidden')
+  currentJobId = null
 }
 
-// Submit delivery
-submitDelivery.addEventListener('click', async () => {
-  const driveLink = driveLinkInput.value.trim();
-  const telebirr = telebirrInput.value.trim();
+async function submitDelivery() {
+  const driveLink = document.getElementById('drive-link').value.trim()
+  const telebirr = document.getElementById('telebirr-number').value.trim()
+  const button = document.getElementById('submit-delivery')
+  const originalText = button.innerHTML
 
   if (!driveLink) {
-    showNotification('🔗 Please enter Google Drive link', 'error');
-    return;
+    showNotification('🔗 Please enter Drive link', 'error')
+    return
   }
 
   if (!/^09\d{8}$/.test(telebirr)) {
-    showNotification('📱 Invalid Telebirr. Must start with 09 and be 10 digits.', 'error');
-    return;
+    showNotification('📱 Telebirr must be 10 digits starting with 09', 'error')
+    return
   }
 
-  submitDelivery.innerHTML = '<div class="btn-spinner"></div> Submitting...';
-  submitDelivery.disabled = true;
+  button.innerHTML = 'Submitting...'
+  button.disabled = true
 
   try {
-    await updateDoc(doc(db, "jobs", currentJobId), {
-      status: "delivered",
-      deliverLink: driveLink,
-      editorTelebirr: telebirr,
-      deliveredAt: new Date().toISOString()
-    });
+    const { error } = await supabase
+      .from('Jobs')
+      .update({ 
+        status: 'delivered',
+        delivery_link: driveLink,
+        editor_telebirr: telebirr
+      })
+      .eq('id', currentJobId)
 
-    showNotification('🎉 Project submitted successfully!', 'success');
-    closeDeliveryModal();
+    if (error) throw error
+
+    showNotification('🎉 Project submitted!', 'success')
+    closeModal()
+    loadMyProjects()
     
-    if (currentCard) {
-      currentCard.style.animation = 'cardSlideOut 0.5s forwards';
-      setTimeout(() => currentCard.remove(), 500);
-    }
-    
-    loadMyProjects();
-    
-  } catch (err) {
-    console.error("Error delivering job:", err);
-    showNotification('❌ Submission failed. Please try again.', 'error');
+  } catch (error) {
+    console.error('Error submitting:', error)
+    showNotification('❌ Submission failed', 'error')
   } finally {
-    submitDelivery.innerHTML = '🚀 Submit Project';
-    submitDelivery.disabled = false;
+    button.innerHTML = originalText
+    button.disabled = false
   }
-});
+}
 
-// Event listeners for modal
-cancelDelivery.addEventListener('click', closeDeliveryModal);
-closeModal.addEventListener('click', closeDeliveryModal);
-deliveryModal.addEventListener('click', (e) => {
-  if (e.target === deliveryModal) closeDeliveryModal();
-});
+function updateNavigation(active) {
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'))
+  document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'))
+  
+  if (active === 'home') {
+    document.getElementById('btn-home').classList.add('active')
+    document.getElementById('job-list').classList.add('active')
+  } else {
+    document.getElementById('btn-my').classList.add('active')
+    document.getElementById('my-projects').classList.add('active')
+  }
+}
 
-// Notification system
 function showNotification(message, type) {
-  const notification = document.createElement('div');
-  notification.className = `notification ${type}`;
+  const notification = document.createElement('div')
+  notification.className = `notification ${type}`
   notification.innerHTML = `
-    <span class="notification-message">${message}</span>
+    <span>${message}</span>
     <button class="notification-close">&times;</button>
-  `;
+  `
   
-  document.body.appendChild(notification);
-  
-  setTimeout(() => notification.classList.add('show'), 100);
+  document.body.appendChild(notification)
+  setTimeout(() => notification.classList.add('show'), 10)
   
   notification.querySelector('.notification-close').addEventListener('click', () => {
-    notification.classList.remove('show');
-    setTimeout(() => notification.remove(), 300);
-  });
+    notification.remove()
+  })
   
-  setTimeout(() => {
-    notification.classList.remove('show');
-    setTimeout(() => notification.remove(), 300);
-  }, 5000);
+  setTimeout(() => notification.remove(), 5000)
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div')
+  div.textContent = text
+  return div.innerHTML
 }
