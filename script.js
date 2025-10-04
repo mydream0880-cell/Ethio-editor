@@ -1,9 +1,10 @@
-// script.js - SUPABASE VERSION
+// script.js - FINAL WORKING VERSION
 import { supabase } from './supabase.js'
 
 let currentJobId = null
 
 document.addEventListener('DOMContentLoaded', function() {
+  console.log("🚀 Etio-Editor Starting...")
   setupEventListeners()
   loadHomePage()
 })
@@ -23,7 +24,7 @@ function setupEventListeners() {
 async function loadHomePage() {
   updateNavigation('home')
   const container = document.getElementById('jobs-container')
-  container.innerHTML = '<div class="loading-state">Loading jobs...</div>'
+  container.innerHTML = '<div class="loading-state">🔄 Loading jobs...</div>'
 
   try {
     const { data: jobs, error } = await supabase
@@ -54,7 +55,7 @@ async function loadHomePage() {
 async function loadMyProjects() {
   updateNavigation('my-projects')
   const container = document.getElementById('projects-container')
-  container.innerHTML = '<div class="loading-state">Loading projects...</div>'
+  container.innerHTML = '<div class="loading-state">🔄 Loading projects...</div>'
 
   try {
     const { data: jobs, error } = await supabase
@@ -127,7 +128,7 @@ async function acceptJob(jobId, card) {
   const button = card.querySelector('.btn-accept')
   const originalText = button.innerHTML
   
-  button.innerHTML = 'Accepting...'
+  button.innerHTML = '🔄 Accepting...'
   button.disabled = true
   
   try {
@@ -138,9 +139,12 @@ async function acceptJob(jobId, card) {
 
     if (error) throw error
     
-    showNotification('✅ Job accepted!', 'success')
-    card.remove()
-    loadHomePage()
+    showNotification('✅ Job accepted successfully!', 'success')
+    card.style.opacity = '0'
+    setTimeout(() => {
+      card.remove()
+      loadHomePage()
+    }, 300)
     
   } catch (error) {
     console.error('Error accepting job:', error)
@@ -169,16 +173,16 @@ async function submitDelivery() {
   const originalText = button.innerHTML
 
   if (!driveLink) {
-    showNotification('🔗 Please enter Drive link', 'error')
+    showNotification('🔗 Please enter Google Drive link', 'error')
     return
   }
 
   if (!/^09\d{8}$/.test(telebirr)) {
-    showNotification('📱 Telebirr must be 10 digits starting with 09', 'error')
+    showNotification('📱 Telebirr must start with 09 and be 10 digits', 'error')
     return
   }
 
-  button.innerHTML = 'Submitting...'
+  button.innerHTML = '🔄 Submitting...'
   button.disabled = true
 
   try {
@@ -193,7 +197,7 @@ async function submitDelivery() {
 
     if (error) throw error
 
-    showNotification('🎉 Project submitted!', 'success')
+    showNotification('🎉 Project submitted successfully!', 'success')
     closeModal()
     loadMyProjects()
     
@@ -234,7 +238,11 @@ function showNotification(message, type) {
     notification.remove()
   })
   
-  setTimeout(() => notification.remove(), 5000)
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.remove()
+    }
+  }, 5000)
 }
 
 function escapeHtml(text) {
