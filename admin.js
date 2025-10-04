@@ -12,7 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
 
 window.addEventListener("DOMContentLoaded", () => {
-  // --- Element Refs ---
+  // Element Refs
   const clientInput = document.getElementById("client-username");
   const titleInput = document.getElementById("job-title");
   const descInput = document.getElementById("job-description");
@@ -21,11 +21,12 @@ window.addEventListener("DOMContentLoaded", () => {
   const postBtn = document.getElementById("post-job");
   const deliveredList = document.getElementById("delivered-jobs");
 
-  console.log("admin.js loaded, postBtn:", postBtn);
+  // Set minimum date to today
+  const today = new Date().toISOString().split('T')[0];
+  expiryInput.min = today;
 
-  // --- Post Job Handler ---
+  // Post Job Handler
   postBtn.addEventListener("click", async () => {
-    console.log("Post button clicked");
     const client = clientInput.value.trim();
     const title = titleInput.value.trim();
     const desc = descInput.value.trim();
@@ -33,17 +34,18 @@ window.addEventListener("DOMContentLoaded", () => {
     const salary = salaryInput.value.trim();
 
     if (!client || !title || !desc || !expiry || !salary) {
-      return alert("❌ Please fill in all fields before posting.");
+      showNotification('❌ Please fill all fields', 'error');
+      return;
     }
 
-    // Validate client username format
     if (!client.startsWith('@')) {
-      return alert("❌ Client username must start with @");
+      showNotification('❌ Client username must start with @', 'error');
+      return;
     }
 
+    postBtn.innerHTML = '<div class="btn-spinner"></div> Posting...';
     postBtn.disabled = true;
-    postBtn.textContent = "Posting...";
-    
+
     try {
       await addDoc(collection(db, "jobs"), {
         clientUsername: client,
@@ -56,111 +58,168 @@ window.addEventListener("DOMContentLoaded", () => {
         editorTelebirr: "",
         postedAt: new Date().toISOString()
       });
+
+      showNotification('✅ Job posted successfully!', 'success');
       
-      alert("✅ Job posted successfully!");
       // Clear form
-      clientInput.value = titleInput.value = descInput.value = expiryInput.value = salaryInput.value = "";
+      clientInput.value = titleInput.value = descInput.value = salaryInput.value = "";
+      expiryInput.value = "";
+      
       loadDeliveredProjects();
     } catch (err) {
       console.error("Error posting job:", err);
-      alert("❌ Failed to post job. See console for details.");
+      showNotification('❌ Failed to post job', 'error');
     } finally {
+      postBtn.innerHTML = '✅ Post Job';
       postBtn.disabled = false;
-      postBtn.textContent = "✅ Post Job";
     }
   });
 
-  // --- Load Delivered Projects ---
+  // Load Delivered Projects
   async function loadDeliveredProjects() {
     deliveredList.innerHTML = "";
     try {
       const q = query(
         collection(db, "jobs"),
         where("status", "==", "delivered"),
-        orderBy("expiry", "desc")
+        orderBy("deliveredAt", "desc")
       );
       const snap = await getDocs(q);
+      
       if (snap.empty) {
-        deliveredList.innerHTML = `<p class="empty-state">No deliveries yet. 📭</p>`;
+        deliveredList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>No deliveries yet</h3>
+            <p>Completed projects will appear here</p>
+          </div>
+        `;
         return;
       }
+      
       snap.forEach(docSnap => {
-        deliveredList.appendChild(
-          createDeliveredCard(docSnap.id, docSnap.data())
-        );
+        deliveredList.appendChild(createDeliveredCard(docSnap.id, docSnap.data()));
       });
     } catch (err) {
       console.error("Error loading deliveries:", err);
-      deliveredList.innerHTML = `<p class="empty-state">❌ Error loading deliveries.</p>`;
+      deliveredList.innerHTML = `
+        <div class="empty-state error">
+          <div class="empty-icon">❌</div>
+          <h3>Failed to load deliveries</h3>
+          <p>Please check your connection</p>
+        </div>
+      `;
     }
   }
 
-  // --- Build a Delivered-Project Card ---
+  // Create Delivered Project Card
   function createDeliveredCard(id, job) {
     const card = document.createElement("div");
-    card.className = "delivered-card";
+    card.className = "delivered-card glass-card";
     card.innerHTML = `
       <div class="card-header">
         <h3>${job.title}</h3>
-        <button class="delete-btn" title="Delete Project">🗑️</button>
-      </div>
-      <p><strong>📝 Description:</strong> ${job.description}</p>
-      <p><strong>📅 Expiry:</strong> ${job.expiry}</p>
-      <p><strong>💰 Salary:</strong> ${job.salary}</p>
-      
-      <div class="info-group">
-        <strong>👤 Client:</strong> 
-        <span class="copyable" data-value="${job.clientUsername}">
-          ${job.clientUsername}
-        </span>
-        <button class="copy-btn" data-copy="${job.clientUsername}">📋</button>
+        <button class="btn-delete" title="Delete Project">🗑️</button>
       </div>
       
-      <div class="info-group">
-        <strong>📱 Editor Telebirr:</strong> 
-        <span class="copyable" data-value="${job.editorTelebirr}">
-          ${job.editorTelebirr}
-        </span>
-        <button class="copy-btn" data-copy="${job.editorTelebirr}">📋</button>
+      <div class="card-body">
+        <p class="card-description">${job.description}</p>
+        
+        <div class="project-details">
+          <div class="detail-row">
+            <span class="detail-label">📅 Expiry:</span>
+            <span class="detail-value">${job.expiry}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">💰 Salary:</span>
+            <span class="detail-value">${job.salary}</span>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-item">
+            <label>👤 Client</label>
+            <div class="copy-field">
+              <span class="copy-text">${job.clientUsername}</span>
+              <button class="btn-copy" data-text="${job.clientUsername}">📋</button>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <label>📱 Editor Telebirr</label>
+            <div class="copy-field">
+              <span class="copy-text">${job.editorTelebirr}</span>
+              <button class="btn-copy" data-text="${job.editorTelebirr}">📋</button>
+            </div>
+          </div>
+          
+          <div class="info-item">
+            <label>🔗 Drive Link</label>
+            <div class="copy-field">
+              <a href="${job.deliverLink}" target="_blank" class="drive-link">${job.deliverLink}</a>
+              <button class="btn-copy" data-text="${job.deliverLink}">📋</button>
+            </div>
+          </div>
+        </div>
       </div>
       
-      <div class="info-group">
-        <strong>📎 Drive Link:</strong> 
-        <span class="copyable" data-value="${job.deliverLink}">
-          ${job.deliverLink}
-        </span>
-        <button class="copy-btn" data-copy="${job.deliverLink}">📋</button>
-      </div>
+      <div class="card-glow"></div>
     `;
 
     // Copy handlers
-    card.querySelectorAll(".copy-btn").forEach(btn => {
+    card.querySelectorAll(".btn-copy").forEach(btn => {
       btn.addEventListener("click", async () => {
+        const text = btn.dataset.text;
         try {
-          await navigator.clipboard.writeText(btn.dataset.copy);
-          const originalText = btn.textContent;
-          btn.textContent = "✅";
-          setTimeout(() => btn.textContent = originalText, 1000);
+          await navigator.clipboard.writeText(text);
+          btn.innerHTML = "✅";
+          setTimeout(() => btn.innerHTML = "📋", 2000);
         } catch {
-          alert("❌ Copy failed. Please copy manually.");
+          showNotification('❌ Copy failed', 'error');
         }
       });
     });
 
     // Delete handler
-    card.querySelector(".delete-btn").addEventListener("click", async () => {
+    card.querySelector(".btn-delete").addEventListener("click", async () => {
       if (!confirm("🗑️ Delete this project permanently?")) return;
+      
       try {
         await deleteDoc(doc(db, "jobs", id));
-        card.style.animation = "slideOut 0.3s forwards";
-        setTimeout(() => card.remove(), 300);
+        card.style.animation = "cardSlideOut 0.5s forwards";
+        setTimeout(() => card.remove(), 500);
+        showNotification('✅ Project deleted', 'success');
       } catch (err) {
         console.error("Error deleting job:", err);
-        alert("❌ Delete failed. See console for details.");
+        showNotification('❌ Delete failed', 'error');
       }
     });
 
     return card;
+  }
+
+  // Notification system
+  function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+      <span class="notification-message">${message}</span>
+      <button class="notification-close">&times;</button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    notification.querySelector('.notification-close').addEventListener('click', () => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 300);
+    });
+    
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 300);
+    }, 5000);
   }
 
   // Initial load
