@@ -6,41 +6,55 @@
   <title>Admin Panel 🛠️</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-  <header>
-    <h1 class="title">Admin Panel 🛠️</h1>
+<body class="admin-body">
+  <div class="background-animation admin-bg"></div>
+  
+  <header class="glass-header admin-header">
+    <h1 class="title glitch">Admin Panel 🛠️</h1>
+    <div class="pulse-dot admin-pulse"></div>
   </header>
 
   <main class="content-container">
     <!-- JOB FORM -->
-    <section class="form-section">
-      <h2>Post a New Job 📤</h2>
-      <input
-        id="client-username"
-        type="text"
-        placeholder="👤 Client Telegram Username"
-      />
-      <input id="job-title" type="text" placeholder="📌 Job Title" />
-      <textarea
-        id="job-description"
-        rows="4"
-        placeholder="📝 Job Description (4 lines)"
-      ></textarea>
-      <input id="job-expiry" type="date" />
-      <input
-        id="job-salary"
-        type="text"
-        placeholder="💰 Salary (e.g. 1500 ETB)"
-      />
-      <button id="post-job" type="button" class="nav-btn">
+    <section class="form-section glass-card">
+      <h2 class="section-title">Post a New Job 📤</h2>
+      <div class="form-grid">
+        <div class="input-group">
+          <label>👤 Client Telegram Username</label>
+          <input id="client-username" type="text" placeholder="@username" />
+        </div>
+        
+        <div class="input-group">
+          <label>📌 Job Title</label>
+          <input id="job-title" type="text" placeholder="Enter job title" />
+        </div>
+        
+        <div class="input-group">
+          <label>📝 Job Description</label>
+          <textarea id="job-description" rows="4" placeholder="Describe the project..."></textarea>
+        </div>
+        
+        <div class="input-group">
+          <label>📅 Expiry Date</label>
+          <input id="job-expiry" type="date" />
+        </div>
+        
+        <div class="input-group">
+          <label>💰 Salary</label>
+          <input id="job-salary" type="text" placeholder="1500 ETB" />
+        </div>
+      </div>
+      
+      <button id="post-job" class="btn-primary large-btn">
+        <span class="btn-spinner"></span>
         ✅ Post Job
       </button>
     </section>
 
     <!-- DELIVERED PROJECTS -->
     <section class="delivered-section">
-      <h2>Delivered Projects 📦</h2>
-      <div id="delivered-jobs" class="delivered-list">
+      <h2 class="section-title">Delivered Projects 📦</h2>
+      <div id="delivered-jobs" class="delivered-grid">
         <!-- JS will inject cards here -->
       </div>
     </section>
