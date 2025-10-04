@@ -1,17 +1,17 @@
-// firebase.js - UPDATED CONFIG
+// firebase.js - USE YOUR EXACT CONFIG
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
 
-// Updated Firebase configuration
+// USE YOUR EXACT CONFIG - JUST REMOVE analytics
 const firebaseConfig = {
-  apiKey: "AIzaSyDDgQT6W2OULkePu9KMlfc04u8v2We40OI",
-  authDomain: "ethio-editor.firebaseapp.com",
-  projectId: "ethio-editor",
-  storageBucket: "ethio-editor.appspot.com",
-  messagingSenderId: "480278426413",
-  appId: "1:480278426413:web:f26a5b381993f9caf819a4"
+  apiKey: "AIzaSyBhAj5aJBz5i2ATIlZr_pzHRUu8Wx1TTIY",
+  authDomain: "ethio-editor-pro.firebaseapp.com",
+  projectId: "ethio-editor-pro",
+  storageBucket: "ethio-editor-pro.firebasestorage.app",
+  messagingSenderId: "319224664625",
+  appId: "1:319224664625:web:1e239e9d9105474aba7b10"
 };
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
-console.log("Firebase initialized successfully!");
+console.log("✅ Firebase Connected Successfully!");
