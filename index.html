@@ -1,128 +1,50 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Etio-Editor — Editor UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Etio-Editor 🎬</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="bar">
-    <h1>Etio-Editor — Editor Side</h1>
+  <header>
+    <h1 class="title">Etio-Editor 🎬</h1>
   </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>Available jobs</h2>
-      <div id="jobList"></div>
+  <main class="content-container">
+    <!-- Available Jobs -->
+    <section id="job-list">
+      <h2>Available Jobs 📋</h2>
+      <!-- Job cards will be injected here -->
     </section>
 
-    <section id="deliverSection" class="card" style="display:none;">
-      <h2>Deliver job</h2>
-      <form id="deliverForm">
-        <label>Your name
-          <input id="editorName" type="text" placeholder="Editor name" required />
-        </label>
-        <label>Telebirr number
-          <input id="telebirr" type="text" placeholder="09..." required />
-        </label>
-        <label>Google Drive link
-          <input id="driveLink" type="url" placeholder="https://drive.google.com/..." required />
-        </label>
-        <label>Client username
-          <input id="clientUsername" type="text" placeholder="@client" required />
-        </label>
-        <button id="deliverBtn" type="submit">Submit delivery</button>
-      </form>
-      <p id="deliverMsg" class="msg"></p>
+    <!-- My Accepted Projects -->
+    <section id="my-projects" class="hidden">
+      <h2>My Projects 💼</h2>
+      <!-- Accepted job cards will move here -->
     </section>
   </main>
 
+  <!-- Delivery Modal -->
+  <div id="delivery-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Submit Finished Project 🎉</h3>
+      <input type="file" id="file-upload" accept="video/*,.mp4,.mov,.avi" multiple />
+      <input type="text" id="telebirr-number" placeholder="09xxxxxxxx - Telebirr Number" />
+      <div class="modal-buttons">
+        <button id="submit-delivery" class="nav-btn">🚀 Submit</button>
+        <button id="cancel-delivery" class="nav-btn cancel">❌ Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bottom-nav">
+    <button id="btn-home" class="nav-btn active">🏠 Home</button>
+    <button id="btn-my" class="nav-btn">📁 My Projects</button>
+  </footer>
+
   <script type="module" src="firebase.js"></script>
-  <script type="module">
-    import {
-      ref, onValue, update
-    } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-
-    const db = window.__db;
-
-    const jobList = document.getElementById("jobList");
-    const deliverSection = document.getElementById("deliverSection");
-    const deliverForm = document.getElementById("deliverForm");
-    const deliverMsg = document.getElementById("deliverMsg");
-
-    let currentJobId = null;
-
-    // Load and render only "posted" jobs
-    const jobsRef = ref(db, "jobs");
-    onValue(jobsRef, (snap) => {
-      const data = snap.val() || {};
-      jobList.innerHTML = "";
-      Object.entries(data).forEach(([id, job]) => {
-        if (job.status === "posted") {
-          const div = document.createElement("div");
-          div.className = "item";
-          div.innerHTML = `
-            <div>
-              <strong>${job.title}</strong> — ${job.salary} ETB
-              <div class="sub">${job.description || ""}</div>
-            </div>
-            <div class="actions">
-              <button data-id="${id}" class="acceptBtn">Accept</button>
-            </div>
-          `;
-          jobList.appendChild(div);
-        }
-      });
-    });
-
-    // Accept a job to reveal delivery form and lock it
-    jobList.addEventListener("click", async (e) => {
-      const btn = e.target.closest(".acceptBtn");
-      if (!btn) return;
-      currentJobId = btn.dataset.id;
-      const jobRef = ref(db, "jobs/" + currentJobId);
-      await update(jobRef, { status: "accepted" });
-      deliverSection.style.display = "block";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    // Submit delivery
-    deliverForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      deliverMsg.textContent = "";
-
-      const editorName = document.getElementById("editorName").value.trim();
-      const telebirr = document.getElementById("telebirr").value.trim();
-      const driveLink = document.getElementById("driveLink").value.trim();
-      const clientUsername = document.getElementById("clientUsername").value.trim();
-
-      if (!currentJobId) {
-        deliverMsg.textContent = "No job selected.";
-        deliverMsg.className = "msg error";
-        return;
-      }
-
-      try {
-        const jobRef = ref(db, "jobs/" + currentJobId);
-        await update(jobRef, {
-          status: "delivered",
-          editorName,
-          telebirr,
-          driveLink,
-          clientUsername,
-          deliveredAt: Date.now()
-        });
-        deliverForm.reset();
-        deliverSection.style.display = "none";
-        deliverMsg.textContent = "Delivery submitted.";
-        deliverMsg.className = "msg ok";
-        alert("✅ Delivered!");
-      } catch (err) {
-        deliverMsg.textContent = "Failed: " + err.message;
-        deliverMsg.className = "msg error";
-      }
-    });
-  </script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
