@@ -2,163 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Etio-Editor Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel 🛠️</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="navbar">
-    <div class="nav-left">
-      <h1>Etio-Editor Admin</h1>
-    </div>
-    <nav class="nav-right">
-      <a href="/index.html">🏠 Home</a>
-      <a href="/admin.html">📂 My Projects</a>
-    </nav>
+  <header>
+    <h1 class="title">Admin Panel 🛠️</h1>
   </header>
 
-  <main class="container">
-    <section class="card">
-      <h2>📢 Post a New Job</h2>
-      <form id="jobForm">
-        <label>Title
-          <input id="title" type="text" placeholder="e.g., Short-form video edit" required />
-        </label>
-        <label>Description
-          <textarea id="description" placeholder="Brief task details..." required></textarea>
-        </label>
-        <label>Salary (ETB)
-          <input id="salary" type="number" min="0" placeholder="e.g., 1500" required />
-        </label>
-        <button id="postBtn" type="submit">Post Job</button>
-      </form>
-      <p id="formMsg" class="msg"></p>
+  <main class="content-container">
+    <!-- JOB FORM -->
+    <section class="form-section">
+      <h2>Post a New Job 📤</h2>
+      <input
+        id="client-username"
+        type="text"
+        placeholder="👤 Client Telegram Username"
+      />
+      <input id="job-title" type="text" placeholder="📌 Job Title" />
+      <textarea
+        id="job-description"
+        rows="4"
+        placeholder="📝 Job Description (4 lines)"
+      ></textarea>
+      <input id="job-expiry" type="date" />
+      <input
+        id="job-salary"
+        type="text"
+        placeholder="💰 Salary (e.g. 1500 ETB)"
+      />
+      <button id="post-job" type="button" class="nav-btn">
+        ✅ Post Job
+      </button>
     </section>
 
-    <section class="card">
-      <h2>📋 Live Jobs</h2>
-      <div id="adminJobs"></div>
-    </section>
-
-    <section class="card">
-      <h2>📦 Deliveries</h2>
-      <div id="deliveries"></div>
+    <!-- DELIVERED PROJECTS -->
+    <section class="delivered-section">
+      <h2>Delivered Projects 📦</h2>
+      <div id="delivered-jobs" class="delivered-list">
+        <!-- JS will inject cards here -->
+      </div>
     </section>
   </main>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-    import { getDatabase, ref, push, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDDgQT6W2OULkePu9KMlfc04u8v2We40OI",
-      authDomain: "ethio-editor.firebaseapp.com",
-      databaseURL: "https://ethio-editor-default-rtdb.firebaseio.com",
-      projectId: "ethio-editor",
-      storageBucket: "ethio-editor.appspot.com",
-      messagingSenderId: "480278426413",
-      appId: "1:480278426413:web:e7daa9e7ec76db50f819a4"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const jobForm = document.getElementById("jobForm");
-    const formMsg = document.getElementById("formMsg");
-    const adminJobs = document.getElementById("adminJobs");
-    const deliveries = document.getElementById("deliveries");
-
-    jobForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      formMsg.textContent = "";
-
-      const title = document.getElementById("title").value.trim();
-      const description = document.getElementById("description").value.trim();
-      const salary = document.getElementById("salary").value.trim();
-
-      if (!title || !description || !salary) {
-        formMsg.textContent = "Fill all fields.";
-        formMsg.className = "msg error";
-        return;
-      }
-
-      try {
-        const jobsRef = ref(db, "jobs");
-        const newRef = push(jobsRef);
-        await set(newRef, {
-          title,
-          description,
-          salary,
-          status: "posted",
-          createdAt: Date.now()
-        });
-        jobForm.reset();
-        formMsg.textContent = "✅ Job posted!";
-        formMsg.className = "msg ok";
-      } catch (err) {
-        formMsg.textContent = "Failed to post: " + err.message;
-        formMsg.className = "msg error";
-      }
-    });
-
-    const jobsRef = ref(db, "jobs");
-    onValue(jobsRef, (snap) => {
-      const data = snap.val() || {};
-      adminJobs.innerHTML = "";
-      deliveries.innerHTML = "";
-
-      Object.entries(data).forEach(([id, job]) => {
-        const jobDiv = document.createElement("div");
-        jobDiv.className = "item";
-        jobDiv.innerHTML = `
-          <div>
-            <strong>${job.title}</strong> — ${job.salary} ETB
-            <div class="sub">${job.description || ""}</div>
-            <div class="badge ${job.status}">Status: ${job.status}</div>
-          </div>
-          <div class="actions">
-            ${job.status !== "posted" ? `<button data-id="${id}" data-action="repost">Repost</button>` : ""}
-            ${job.status !== "archived" ? `<button data-id="${id}" data-action="archive">Archive</button>` : ""}
-          </div>
-        `;
-        adminJobs.appendChild(jobDiv);
-
-        if (job.status === "delivered") {
-          const deliveryDiv = document.createElement("div");
-          deliveryDiv.className = "item delivered";
-          deliveryDiv.innerHTML = `
-            <div>
-              <strong>${job.title}</strong> — ${job.salary} ETB
-              <div class="sub">Editor: ${job.editorName || "—"}</div>
-              <div class="sub">Telebirr: ${job.telebirr || "—"}</div>
-              <div class="sub">Drive: ${job.driveLink ? `<a href="${job.driveLink}" target="_blank">Open</a>` : "—"}</div>
-              <div class="sub">Client: ${job.clientUsername || "—"}</div>
-            </div>
-            <div class="actions">
-              <button data-id="${id}" data-action="mark-paid">Mark paid</button>
-            </div>
-          `;
-          deliveries.appendChild(deliveryDiv);
-        }
-      });
-    });
-
-    document.body.addEventListener("click", async (e) => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      const id = btn.dataset.id;
-      const action = btn.dataset.action;
-      if (!id || !action) return;
-
-      const jobRef = ref(db, "jobs/" + id);
-      if (action === "repost") {
-        await update(jobRef, { status: "posted" });
-      } else if (action === "archive") {
-        await update(jobRef, { status: "archived" });
-      } else if (action === "mark-paid") {
-        await update(jobRef, { status: "paid" });
-      }
-    });
-  </script>
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="admin.js"></script>
 </body>
 </html>
