@@ -6,6 +6,45 @@
   <title>Admin Panel 🛠️</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+const supabaseUrl = 'https://eyezopdaykvlrekbwblj.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5ZXpvcGRheWt2bHJla2J3YmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1NzE5OTksImV4cCI6MjA3NTE0Nzk5OX0.lwFr0uX9_kvanbN0UzEMW3-Nb8wEynO8_Z7qAcMoIJ8'
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+// Test connection
+console.log("🔍 Testing Supabase connection...")
+
+// Test 1: Insert a job
+async function test() {
+  try {
+    const { data, error } = await supabase
+      .from('Jobs')
+      .insert([{
+        client_username: '@test',
+        title: 'TEST JOB',
+        description: 'Testing connection',
+        expiry: '2024-12-31',
+        salary: '1000 ETB',
+        status: 'posted'
+      }])
+    
+    if (error) {
+      console.error('❌ INSERT ERROR:', error)
+      alert('INSERT FAILED: ' + error.message)
+    } else {
+      console.log('✅ INSERT SUCCESS:', data)
+      alert('✅ TEST PASSED! Supabase is working!')
+    }
+  } catch (err) {
+    console.error('❌ CATCH ERROR:', err)
+    alert('CATCH ERROR: ' + err.message)
+  }
+}
+
+test()
+</script>
 <body class="admin-body">
   <div class="background-animation admin-bg"></div>
   
