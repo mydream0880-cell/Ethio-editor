@@ -1,7 +1,8 @@
-// admin.js - SUPABASE VERSION
+// admin.js - FINAL WORKING VERSION
 import { supabase } from './supabase.js'
 
 document.addEventListener('DOMContentLoaded', function() {
+  console.log("🛠️ Admin Panel Starting...")
   setupEventListeners()
   loadDeliveredProjects()
 })
@@ -29,11 +30,11 @@ async function postJob() {
   }
 
   if (!client.startsWith('@')) {
-    showNotification('❌ Username must start with @', 'error')
+    showNotification('❌ Client username must start with @', 'error')
     return
   }
 
-  button.innerHTML = 'Posting...'
+  button.innerHTML = '🔄 Posting...'
   button.disabled = true
 
   try {
@@ -72,7 +73,7 @@ async function postJob() {
 
 async function loadDeliveredProjects() {
   const container = document.getElementById('delivered-jobs')
-  container.innerHTML = '<div class="loading-state">Loading deliveries...</div>'
+  container.innerHTML = '<div class="loading-state">🔄 Loading deliveries...</div>'
 
   try {
     const { data: jobs, error } = await supabase
@@ -170,7 +171,7 @@ function createDeliveryCard(job) {
 
   // Delete button
   card.querySelector('.btn-delete').addEventListener('click', async () => {
-    if (!confirm('🗑️ Delete this project?')) return
+    if (!confirm('🗑️ Delete this project permanently?')) return
     
     try {
       const { error } = await supabase
@@ -208,7 +209,11 @@ function showNotification(message, type) {
     notification.remove()
   })
   
-  setTimeout(() => notification.remove(), 5000)
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.remove()
+    }
+  }, 5000)
 }
 
 function escapeHtml(text) {
