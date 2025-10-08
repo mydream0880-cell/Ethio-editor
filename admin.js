@@ -1,134 +1,85 @@
-// admin.js (PocketBase version)
-import { pb } from './pocketbase.js';
+// admin.js
+import { API_URL } from './sheetdb.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  setupEventListeners();
-  loadDeliveredProjects();
-});
-
-function setupEventListeners() {
   document.getElementById('post-job').addEventListener('click', postJob);
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('job-expiry').min = today;
-}
+  loadDeliveredProjects();
+});
 
 async function postJob() {
-  const client  = document.getElementById('client-username').value.trim();
-  const title   = document.getElementById('job-title').value.trim();
-  const desc    = document.getElementById('job-description').value.trim();
-  const expiry  = document.getElementById('job-expiry').value;
-  const salary  = document.getElementById('job-salary').value.trim();
-  const btn     = document.getElementById('post-job');
-  const orig    = btn.innerHTML;
+  const client = document.getElementById('client-username').value.trim();
+  const title = document.getElementById('job-title').value.trim();
+  const desc = document.getElementById('job-description').value.trim();
+  const expiry = document.getElementById('job-expiry').value;
+  const salary = document.getElementById('job-salary').value.trim();
 
   if (!client || !title || !desc || !expiry || !salary) {
-    return showNotification('❌ Please fill all fields', 'error');
-  }
-  if (!client.startsWith('@')) {
-    return showNotification('❌ Client username must start with @', 'error');
+    return showNotification('❌ Fill all fields', 'error');
   }
 
-  btn.innerHTML = '🔄 Posting...';
-  btn.disabled  = true;
+  if (!client.startsWith('@')) {
+    return showNotification('❌ Username must start with @', 'error');
+  }
+
+  const job = {
+    id: Date.now().toString(),
+    client_username: client,
+    title,
+    description: desc,
+    expiry,
+    salary,
+    status: "posted"
+  };
 
   try {
-    await pb.collection('jobs').create({
-      client_username: client,
-      title,
-      description: desc,
-      expiry,
-      salary,
-      status: 'posted'
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: [job] })
     });
-
-    showNotification('✅ Job posted successfully!', 'success');
-    document.getElementById('post-job-form').reset();
+    showNotification('✅ Job posted!', 'success');
     loadDeliveredProjects();
-
   } catch (e) {
     console.error(e);
     showNotification('❌ Failed to post job', 'error');
-  } finally {
-    btn.innerHTML = orig;
-    btn.disabled  = false;
   }
 }
 
 async function loadDeliveredProjects() {
   const container = document.getElementById('delivered-jobs');
-  container.innerHTML = '<div class="loading-state">🔄 Loading deliveries...</div>';
+  container.innerHTML = "🔄 Loading...";
 
   try {
-    const jobs = await pb.collection('jobs').getFullList({
-      filter: 'status = "delivered"',
-      sort: '-created'
-    });
+    const res = await fetch(`${API_URL}/search?status=delivered`);
+    const jobs = await res.json();
 
-    container.innerHTML = '';
-    if (jobs.length === 0) {
-      container.innerHTML = '<div class="empty-state">📦 No deliveries yet</div>';
+    container.innerHTML = "";
+    if (!jobs.length) {
+      container.innerHTML = "📦 No deliveries yet";
       return;
     }
 
     jobs.forEach(job => {
-      container.appendChild(createDeliveryCard(job));
+      const div = document.createElement('div');
+      div.className = "delivered-card";
+      div.innerHTML = `
+        <h3>${job.title}</h3>
+        <p>${job.description}</p>
+        <p>💰 ${job.salary} | 📅 ${job.expiry}</p>
+        <p>👤 ${job.client_username}</p>
+        <p>📱 ${job.editor_telebirr || "—"}</p>
+        <p>🔗 <a href="${job.delivery_link}" target="_blank">${job.delivery_link || "—"}</a></p>
+      `;
+      container.appendChild(div);
     });
-
   } catch (e) {
     console.error(e);
-    container.innerHTML = '<div class="empty-state error">❌ Failed to load deliveries</div>';
+    container.innerHTML = "❌ Failed to load deliveries";
   }
 }
 
-function createDeliveryCard(job) {
-  const card = document.createElement('div');
-  card.className = 'delivered-card glass-card';
-  card.innerHTML = `
-    <div class="card-header">
-      <h3>${escapeHtml(job.title)}</h3>
-      <button class="btn-delete">🗑️</button>
-    </div>
-    <div class="card-body">
-      <p>${escapeHtml(job.description)}</p>
-      <div class="project-details">
-        <div>📅 ${job.expiry}</div>
-        <div>💰 ${escapeHtml(job.salary)}</div>
-      </div>
-      <div class="info-section">
-        <div>👤 ${escapeHtml(job.client_username)}</div>
-        <div>📱 ${job.editor_telebirr || 'Not provided'}</div>
-        <div>🔗 <a href="${job.delivery_link}" target="_blank">${job.delivery_link || 'No link'}</a></div>
-      </div>
-    </div>
-  `;
-
-  card.querySelector('.btn-delete').addEventListener('click', async () => {
-    if (!confirm('🗑️ Delete this project permanently?')) return;
-    try {
-      await pb.collection('jobs').delete(job.id);
-      card.remove();
-      showNotification('✅ Project deleted', 'success');
-    } catch (e) {
-      console.error(e);
-      showNotification('❌ Delete failed', 'error');
-    }
-  });
-
-  return card;
-}
-
 function showNotification(msg, type) {
-  const n = document.createElement('div');
-  n.className    = `notification ${type}`;
-  n.innerHTML    = `<span>${msg}</span><button class="notification-close">&times;</button>`;
-  document.body.appendChild(n);
-  setTimeout(() => n.classList.add('show'), 10);
-  n.querySelector('.notification-close').addEventListener('click', () => n.remove());
-  setTimeout(() => n.remove(), 5000);
-}
-
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+  alert(msg); // Simple alert for now
 }
