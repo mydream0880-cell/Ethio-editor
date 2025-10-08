@@ -6,55 +6,14 @@
   <title>Admin Panel 🛠️</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-
-const supabaseUrl = 'https://eyezopdaykvlrekbwblj.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5ZXpvcGRheWt2bHJla2J3YmxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1NzE5OTksImV4cCI6MjA3NTE0Nzk5OX0.lwFr0uX9_kvanbN0UzEMW3-Nb8wEynO8_Z7qAcMoIJ8'
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-// Test connection
-console.log("🔍 Testing Supabase connection...")
-
-// Test 1: Insert a job
-async function test() {
-  try {
-    const { data, error } = await supabase
-      .from('Jobs')
-      .insert([{
-        client_username: '@test',
-        title: 'TEST JOB',
-        description: 'Testing connection',
-        expiry: '2024-12-31',
-        salary: '1000 ETB',
-        status: 'posted'
-      }])
-    
-    if (error) {
-      console.error('❌ INSERT ERROR:', error)
-      alert('INSERT FAILED: ' + error.message)
-    } else {
-      console.log('✅ INSERT SUCCESS:', data)
-      alert('✅ TEST PASSED! Supabase is working!')
-    }
-  } catch (err) {
-    console.error('❌ CATCH ERROR:', err)
-    alert('CATCH ERROR: ' + err.message)
-  }
-}
-
-test()
-</script>
 <body class="admin-body">
   <div class="background-animation admin-bg"></div>
-  
   <header class="glass-header admin-header">
     <h1 class="title glitch">Admin Panel 🛠️</h1>
     <div class="pulse-dot admin-pulse"></div>
   </header>
 
   <main class="content-container">
-    <!-- JOB FORM -->
     <section class="form-section glass-card">
       <h2 class="section-title">Post a New Job 📤</h2>
       <div class="form-grid">
@@ -62,40 +21,29 @@ test()
           <label>👤 Client Telegram Username</label>
           <input id="client-username" type="text" placeholder="@username" />
         </div>
-        
         <div class="input-group">
           <label>📌 Job Title</label>
           <input id="job-title" type="text" placeholder="Enter job title" />
         </div>
-        
         <div class="input-group">
           <label>📝 Job Description</label>
           <textarea id="job-description" rows="4" placeholder="Describe the project..."></textarea>
         </div>
-        
         <div class="input-group">
           <label>📅 Expiry Date</label>
           <input id="job-expiry" type="date" />
         </div>
-        
         <div class="input-group">
           <label>💰 Salary</label>
           <input id="job-salary" type="text" placeholder="1500 ETB" />
         </div>
       </div>
-      
-      <button id="post-job" class="btn-primary large-btn">
-        <span class="btn-spinner"></span>
-        ✅ Post Job
-      </button>
+      <button id="post-job" class="btn-primary large-btn">✅ Post Job</button>
     </section>
 
-    <!-- DELIVERED PROJECTS -->
     <section class="delivered-section">
       <h2 class="section-title">Delivered Projects 📦</h2>
-      <div id="delivered-jobs" class="delivered-grid">
-        <!-- JS will inject cards here -->
-      </div>
+      <div id="delivered-jobs" class="delivered-grid"></div>
     </section>
   </main>
 
