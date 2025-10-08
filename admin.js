@@ -1,4 +1,3 @@
-// admin.js
 import { API_URL } from './sheetdb.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,7 +29,9 @@ async function postJob() {
     description: desc,
     expiry,
     salary,
-    status: "posted"
+    status: "posted",
+    delivery_link: "",
+    editor_telebirr: ""
   };
 
   try {
