@@ -1,4 +1,3 @@
-// script.js
 import { API_URL } from './sheetdb.js';
 
 let currentJobId = null;
